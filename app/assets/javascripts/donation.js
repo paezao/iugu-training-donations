@@ -5,14 +5,18 @@ $(function() {
   $('#payment-form').submit(function(evt) {
     var form = $(this);
 
-    Iugu.createPaymentToken(this, function(data) {
-      if (data.errors) {
-        alert(JSON.stringify(data.errors));
-      } else {
-        $('#token').val(data.id);
-        form.get(0).submit();
-      }
-    });
+    if ($('#cc').hasClass("active")) {
+      Iugu.createPaymentToken(this, function(data) {
+        if (data.errors) {
+          alert(JSON.stringify(data.errors));
+        } else {
+          $('#token').val(data.id);
+          form.get(0).submit();
+        }
+      });
+    } else {
+      form.get(0).submit();
+    }
 
     return false;
   });
