@@ -1,17 +1,30 @@
 class DonationController < ApplicationController
   def index
+    @donations = Donation.all
   end
 
   def donate
     Iugu.api_key = "98f7ca6cc1b969430492d0c8378fc4ce"
 
+    if params[:email].blank? || params[:amount].blank?
+      flash[:danger] = "Favor preencher e-mail e valor!" 
+      return redirect_to root_path
+    end
+
+    message = "Doação"
+    price_cents = (params[:amount].to_f * 100).to_i
+
+    unless params[:message].blank?
+      message = params[:message]
+    end
+
     charge_options = {
-      "email" => "paezao@gmail.com",
+      "email" => params[:email],
       "items" => [
         {
-          "description" => "Training",
+          "description" => message,
           "quantity" => "1",
-          "price_cents" => "100"
+          "price_cents" => price_cents
         }
       ]
     }
@@ -28,10 +41,17 @@ class DonationController < ApplicationController
       if params[:token].blank?
         redirect_to charge.pdf
       else
+        Donation.create({
+          invoice_id: charge.invoice_id,
+          amount_cents: price_cents,
+          donated_at: Time.now
+        })
+
         redirect_to thank_you_url
       end
     else
       flash[:danger] = "Erro processando pagamento!" 
+      #flash[:danger] = price_cents
       redirect_to root_path
     end
 

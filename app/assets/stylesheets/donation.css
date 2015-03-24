@@ -1,4 +1,8 @@
 /* Credit Card Form */
+#payment-form {
+  max-width: 500px;
+}
+
 .usable-creditcard-form, .usable-creditcard-form * {
     font-size: 13px;
 }
