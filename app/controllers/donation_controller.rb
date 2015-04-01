@@ -1,6 +1,14 @@
 class DonationController < ApplicationController
   def index
-    @donations = Donation.all
+    @donations = Donation.where(status: "paid")
+  end
+
+  def callback
+    if params[:event] == "invoice.status_changed" && params[:data][:status] == "paid"
+      donation = Donation.find_by_invoice_id params[:data][:id]
+      donation.status = "paid"
+      donation.save
+    end
   end
 
   def donate
@@ -38,15 +46,19 @@ class DonationController < ApplicationController
     charge = Iugu::Charge.create charge_options
 
     if charge.success
+      status = "paid"
+      status = "pending" if params[:token].blank?
+
+      Donation.create({
+        invoice_id: charge.invoice_id,
+        amount_cents: price_cents,
+        donated_at: Time.now,
+        status: status
+      })
+
       if params[:token].blank?
         redirect_to charge.pdf
       else
-        Donation.create({
-          invoice_id: charge.invoice_id,
-          amount_cents: price_cents,
-          donated_at: Time.now
-        })
-
         redirect_to thank_you_url
       end
     else
