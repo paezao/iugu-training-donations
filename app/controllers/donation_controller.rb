@@ -7,9 +7,13 @@ class DonationController < ApplicationController
 
   def callback
     if params[:event] == "invoice.status_changed" && params[:data][:status] == "paid"
-      donation = Donation.find_by_invoice_id params[:data][:id]
-      donation.status = "paid"
-      donation.save
+      invoice = Iugu::Invoice.fetch params[:data][:id]
+
+      if invoice && invoice.status == "paid"
+        donation = Donation.find_by_invoice_id params[:data][:id]
+        donation.status = "paid"
+        donation.save
+      end
     end
   end
 
