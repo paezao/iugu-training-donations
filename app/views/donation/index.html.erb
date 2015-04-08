@@ -79,7 +79,7 @@
         <tbody>
           <% @donations.each do |donation| %>
             <tr>
-              <td><%= donation.donated_at %></td>
+              <td><%= l donation.donated_at, format: :long %></td>
               <td><%= donation.amount_cents / 100 %></td>
             </tr>
           <% end %>
