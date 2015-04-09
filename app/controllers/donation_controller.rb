@@ -1,6 +1,10 @@
 class DonationController < ApplicationController
   protect_from_forgery except: [:callback]
 
+  before_filter :require_login
+
+  skip_before_filter :require_login, only: [:callback]
+
   def index
     @donations = Donation.where(status: "paid")
   end
